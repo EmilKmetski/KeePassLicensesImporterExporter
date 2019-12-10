@@ -73,7 +73,10 @@ namespace KeePassLicensesImporterExporter
         {
             PwDatabase pd = m_host.Database;
             if ((pd == null) || !pd.IsOpen) { Debug.Assert(false); return; }
+            
+            //need to add file open dialog here
             string licensesFileFullPath = AppDomain.CurrentDomain.BaseDirectory + "TemplateFileLicenses.xlsx";
+
             licensesTable = ReadExcelFile.getExcellToDtbl(licensesFileFullPath, "Licenses");
             List<ILicense> licenses = new List<ILicense>();
 
@@ -115,12 +118,10 @@ namespace KeePassLicensesImporterExporter
                                                (y =>
                                                     {
                                                         desctiptionString.AppendLine(y.LicenseApplicationName + " - " + y.LicenseApplicationVersion);
-
                                                         pe.Strings.Set(nameof(y.LicenseApplicationName), new ProtectedString(false, y.LicenseApplicationName));
                                                         pe.Strings.Set(nameof(y.LicenseApplicationVersion), new ProtectedString(false, y.LicenseApplicationVersion));
                                                         pe.Strings.Set(nameof(y.LicenseNumber), new ProtectedString(false, y.LicenseNumber));
                                                         pe.Strings.Set(nameof(y.LicenseRegistrationNumber), new ProtectedString(false, y.LicenseRegistrationNumber));
-
 
                                                     }
                                                );
@@ -141,13 +142,12 @@ namespace KeePassLicensesImporterExporter
             if ((pd == null) || !pd.IsOpen) { Debug.Assert(false); return; }
 
 
-
         }
+
         private void OnMenuViewLicenses(object sender, EventArgs e)
         {
             PwDatabase pd = m_host.Database;
             if ((pd == null) || !pd.IsOpen) { Debug.Assert(false); return; }
-
 
             PwEntry pe = m_host.MainWindow.GetSelectedEntry(true);
             if (pe.Strings.Get("Title").ReadString().Contains("License"))
