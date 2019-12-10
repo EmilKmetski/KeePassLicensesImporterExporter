@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Windows.Forms;
@@ -73,9 +74,24 @@ namespace KeePassLicensesImporterExporter
         {
             PwDatabase pd = m_host.Database;
             if ((pd == null) || !pd.IsOpen) { Debug.Assert(false); return; }
-            
+
             //need to add file open dialog here
-            string licensesFileFullPath = AppDomain.CurrentDomain.BaseDirectory + "TemplateFileLicenses.xlsx";
+            string licensesFileFullPath = string.Empty;
+            using (OpenFileDialog openFileDialog = new OpenFileDialog())
+            {
+                openFileDialog.InitialDirectory = @"c:\";
+                openFileDialog.Filter = "excel 97-2003(*.xls)|*.xls|excel 2007 (*.xlsx)|*.xlsx";
+                openFileDialog.FilterIndex = 2;
+                openFileDialog.RestoreDirectory = false;
+                openFileDialog.Title = "Open the Excel file with License Data";
+                openFileDialog.Multiselect = false;               
+              
+                if (openFileDialog.ShowDialog() == DialogResult.OK)
+                {
+                    //Get the path of specified file
+                    licensesFileFullPath = new FileInfo(openFileDialog.FileName).FullName;
+                }
+            }          
 
             licensesTable = ReadExcelFile.getExcellToDtbl(licensesFileFullPath, "Licenses");
             List<ILicense> licenses = new List<ILicense>();
@@ -140,7 +156,25 @@ namespace KeePassLicensesImporterExporter
         {
             PwDatabase pd = m_host.Database;
             if ((pd == null) || !pd.IsOpen) { Debug.Assert(false); return; }
+            string licensesFilesDir = string.Empty;
+            string licensesFilesFile = string.Empty;
+            using (SaveFileDialog saveFileDialog = new SaveFileDialog())
+            {
+                saveFileDialog.InitialDirectory = @"c:\";
+                saveFileDialog.Filter = "excel 97-2003(*.xls)|*.xls|excel 2007 (*.xlsx)|*.xlsx";
+                saveFileDialog.FilterIndex = 2;
+                saveFileDialog.RestoreDirectory = false;
+                saveFileDialog.Title = "Save the Excel file with License Data";
+                saveFileDialog.DefaultExt = "*.xlsx";
+                saveFileDialog.OverwritePrompt = true;                
 
+                if (saveFileDialog.ShowDialog() == DialogResult.OK)
+                {
+                    //Get the path of specified file
+                    licensesFilesDir = new FileInfo(saveFileDialog.FileName).DirectoryName;
+                    licensesFilesFile = new FileInfo(saveFileDialog.FileName).FullName;
+                }
+            }
 
         }
 
