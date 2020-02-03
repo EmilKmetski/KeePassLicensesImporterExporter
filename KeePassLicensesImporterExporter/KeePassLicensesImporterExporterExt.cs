@@ -13,6 +13,7 @@ using KeePass.UI;
 using KeePassLib;
 using KeePassLib.Security;
 using KeePassLib.Utility;
+using KeePassLicensesImporterExporter.Interfaces;
 using KeePassLicensesImporterExporter.Models;
 
 namespace KeePassLicensesImporterExporter
@@ -171,10 +172,15 @@ namespace KeePassLicensesImporterExporter
                 if (saveFileDialog.ShowDialog() == DialogResult.OK)
                 {
                     //Get the path of specified file
+                    
+
                     licensesFilesDir = new FileInfo(saveFileDialog.FileName).DirectoryName;
                     licensesFilesFile = new FileInfo(saveFileDialog.FileName).FullName;
+
                 }
             }
+
+
 
         }
 
@@ -184,16 +190,39 @@ namespace KeePassLicensesImporterExporter
             if ((pd == null) || !pd.IsOpen) { Debug.Assert(false); return; }
 
             PwEntry pe = m_host.MainWindow.GetSelectedEntry(true);
-            if (pe.Strings.Get("Title").ReadString().Contains("License"))
+            if (pe.Strings.Get("Title").ReadString().Contains("LicenseId"))
             {
                 StringBuilder licenseData = new StringBuilder();
                 foreach (var item in pe.Strings)
-                {
+                {                   
+                    switch (item.Key)
+                    {
+                        case "Title":
+                            licenseData.AppendLine(item.Key + " : " + item.Value.ReadString());
+                            break;
+                        case "LicenseApplicationName":
+                            licenseData.AppendLine(item.Key + " : " + item.Value.ReadString());
+                            break;
+                        case "LicenseApplicationVersion":
+                            licenseData.AppendLine(item.Key + " : " + item.Value.ReadString());
+                            break;
+                        case "LicenseNumber":
+                            licenseData.AppendLine(item.Key + " : " + item.Value.ReadString());
+                            break;
+                        case "LicenseRegistrationNumber":
+                            licenseData.AppendLine(item.Key + " : " + item.Value.ReadString());
+                            break;
+                        default:
+                            break;
+                    }
                     licenseData.AppendLine(item.Key + " : " + item.Value.ReadString());
                 }
+
                 Clipboard.SetDataObject(licenseData.ToString(), true);
                 MessageBox.Show(licenseData.ToString(), "License information", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
+
+
         }
 
     }

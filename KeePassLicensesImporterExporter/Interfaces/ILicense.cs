@@ -8,6 +8,6 @@ namespace KeePassLicensesImporterExporter.Interfaces
     public interface ILicense
     {
         string Id { get; set; }
-        ICollection<ILicenseData> LicenseDatas { get; set; }
+        IEnumerable<ILicenseData> LicenseDatas { get; set; }
     }
 }
