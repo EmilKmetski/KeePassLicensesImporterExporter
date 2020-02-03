@@ -73,6 +73,7 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>copy "C:\Projects\KeePassHardwareLicensesImporter\KeePassHardwareLicensesImporter\bin\Debug\KeePassLicensesImporterExporter.dll" "C:\Program Files (x86)\KeePass Password Safe 2\Plugins\KeePassLicensesImporterExporter.dll" /Y</PostBuildEvent>
+    <PostBuildEvent>copy "D:\Projects\Microsoft .Net\KeePassLicenses\KeePassLicensesImporterExporter\bin\Debug\KeePassLicensesImporterExporter.dll" "C:\Program Files (x86)\KeePass Password Safe 2\Plugins\KeePassLicensesImporterExporter.dll" /Y
+copy "D:\Projects\Microsoft .Net\KeePassLicenses\KeePassLicensesImporterExporter\bin\Debug\DocumentFormat.OpenXml.dll" "C:\Program Files (x86)\KeePass Password Safe 2\Plugins\DocumentFormat.OpenXml.dll" /Y</PostBuildEvent>
   </PropertyGroup>
 </Project>

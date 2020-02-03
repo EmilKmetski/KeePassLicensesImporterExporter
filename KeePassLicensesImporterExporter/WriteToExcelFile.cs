@@ -176,12 +176,7 @@ namespace KeePassLicensesImporterExporter
 
             ); // return
         }
-        private void test()
-        {
-            CellFormat myTestFormat = new CellFormat();
-            myTestFormat.FontId = 3;
-
-        }
+       
         private static void WriteExcelFile(DataSet ds, SpreadsheetDocument spreadsheet)
         {
             //  Create the Excel file contents.  This function is used when creating an Excel file either writing 

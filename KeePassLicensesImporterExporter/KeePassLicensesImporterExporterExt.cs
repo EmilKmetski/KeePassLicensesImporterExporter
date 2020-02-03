@@ -85,14 +85,14 @@ namespace KeePassLicensesImporterExporter
                 openFileDialog.FilterIndex = 2;
                 openFileDialog.RestoreDirectory = false;
                 openFileDialog.Title = "Open the Excel file with License Data";
-                openFileDialog.Multiselect = false;               
-              
+                openFileDialog.Multiselect = false;
+
                 if (openFileDialog.ShowDialog() == DialogResult.OK)
                 {
                     //Get the path of specified file
                     licensesFileFullPath = new FileInfo(openFileDialog.FileName).FullName;
                 }
-            }          
+            }
 
             licensesTable = ReadExcelFile.getExcellToDtbl(licensesFileFullPath, "Licenses");
             List<ILicense> licenses = new List<ILicense>();
@@ -135,14 +135,12 @@ namespace KeePassLicensesImporterExporter
                                                (y =>
                                                     {
                                                         desctiptionString.AppendLine(y.LicenseApplicationName + " - " + y.LicenseApplicationVersion);
-                                                        pe.Strings.Set(nameof(y.LicenseApplicationName), new ProtectedString(false, y.LicenseApplicationName));
-                                                        pe.Strings.Set(nameof(y.LicenseApplicationVersion), new ProtectedString(false, y.LicenseApplicationVersion));
-                                                        pe.Strings.Set(nameof(y.LicenseNumber), new ProtectedString(false, y.LicenseNumber));
-                                                        pe.Strings.Set(nameof(y.LicenseRegistrationNumber), new ProtectedString(false, y.LicenseRegistrationNumber));
-
+                                                        pe.Strings.Set(y.LicenseApplicationName + "|" + nameof(y.LicenseApplicationName), new ProtectedString(false, y.LicenseApplicationName));
+                                                        pe.Strings.Set(y.LicenseApplicationName + "|" + nameof(y.LicenseApplicationVersion), new ProtectedString(false, y.LicenseApplicationVersion));
+                                                        pe.Strings.Set(y.LicenseApplicationName + "|" + nameof(y.LicenseNumber), new ProtectedString(false, y.LicenseNumber));
+                                                        pe.Strings.Set(y.LicenseApplicationName + "|" + nameof(y.LicenseRegistrationNumber), new ProtectedString(false, y.LicenseRegistrationNumber));
                                                     }
                                                );
-
 
                 pe.Strings.Set(PwDefs.NotesField, new ProtectedString(pd.MemoryProtection.ProtectNotes, desctiptionString.ToString()));
                 pg.AddEntry(pe, true);
@@ -159,29 +157,37 @@ namespace KeePassLicensesImporterExporter
             if ((pd == null) || !pd.IsOpen) { Debug.Assert(false); return; }
             string licensesFilesDir = string.Empty;
             string licensesFilesFile = string.Empty;
-            using (SaveFileDialog saveFileDialog = new SaveFileDialog())
+
+            PwEntry pe = m_host.MainWindow.GetSelectedEntry(true);
+            if (pe.Strings.Get("Title").ReadString().Contains("LicenseId"))
             {
-                saveFileDialog.InitialDirectory = @"c:\";
-                saveFileDialog.Filter = "excel 97-2003(*.xls)|*.xls|excel 2007 (*.xlsx)|*.xlsx";
-                saveFileDialog.FilterIndex = 2;
-                saveFileDialog.RestoreDirectory = false;
-                saveFileDialog.Title = "Save the Excel file with License Data";
-                saveFileDialog.DefaultExt = "*.xlsx";
-                saveFileDialog.OverwritePrompt = true;                
 
-                if (saveFileDialog.ShowDialog() == DialogResult.OK)
+                using (SaveFileDialog saveFileDialog = new SaveFileDialog())
                 {
-                    //Get the path of specified file
-                    
+                    saveFileDialog.InitialDirectory = @"c:\";
+                    saveFileDialog.Filter = "excel 97-2003(*.xls)|*.xls|excel 2007 (*.xlsx)|*.xlsx";
+                    saveFileDialog.FilterIndex = 2;
+                    saveFileDialog.RestoreDirectory = false;
+                    saveFileDialog.Title = "Save the Excel file with License Data";
+                    saveFileDialog.DefaultExt = "*.xlsx";
+                    saveFileDialog.OverwritePrompt = true;
+                    saveFileDialog.FileName = "ExportedLisenses_" + DateTime.Now.ToString("yyyy_MM_dd_HH:mm") + ".xlsx";
 
-                    licensesFilesDir = new FileInfo(saveFileDialog.FileName).DirectoryName;
-                    licensesFilesFile = new FileInfo(saveFileDialog.FileName).FullName;
+                    if (saveFileDialog.ShowDialog() == DialogResult.OK)
+                    {
+                        //Get the path of specified file
 
+
+                        licensesFilesDir = new FileInfo(saveFileDialog.FileName).DirectoryName;
+                        licensesFilesFile = new FileInfo(saveFileDialog.FileName).FullName;
+
+                    }
                 }
             }
-
-
-
+            else
+            {
+                MessageBox.Show("This entry does not contain license information!", "License information", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
         }
 
         private void OnMenuViewLicenses(object sender, EventArgs e)
@@ -194,7 +200,7 @@ namespace KeePassLicensesImporterExporter
             {
                 StringBuilder licenseData = new StringBuilder();
                 foreach (var item in pe.Strings)
-                {                   
+                {
                     switch (item.Key)
                     {
                         case "Title":
@@ -221,9 +227,6 @@ namespace KeePassLicensesImporterExporter
                 Clipboard.SetDataObject(licenseData.ToString(), true);
                 MessageBox.Show(licenseData.ToString(), "License information", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
-
-
         }
-
     }
 }
