@@ -20,7 +20,6 @@ namespace KeePassLicensesImporterExporter
 {
     public sealed class KeePassLicensesImporterExporterExt : Plugin
     {
-
         private IPluginHost m_host = null;
         private DataTable licensesTable = new DataTable();
         public override bool Initialize(IPluginHost host)
@@ -141,12 +140,10 @@ namespace KeePassLicensesImporterExporter
                     appLicenseData.LicenseNumber = licenseData.Field<string>(nameof(appLicenseData.LicenseNumber));
                     appLicenseData.LicenseRegistrationNumber = licenseData.Field<string>(nameof(appLicenseData.LicenseRegistrationNumber));
                     currentLicenseData.Add(appLicenseData);
-
                 }
                 currentLicense.LicenseDatas = currentLicenseData;
                 licenses.Add(currentLicense);
             }
-
 
             PwGroup pgParent = (m_host.MainWindow.GetSelectedGroup() ?? pd.RootGroup);
             // Add a new group licenses if not exist
@@ -189,7 +186,6 @@ namespace KeePassLicensesImporterExporter
             PwGroup pgParent = (m_host.MainWindow.GetSelectedGroup() ?? pd.RootGroup);
             if (pgParent.Name == "Licenses")
             {
-
                 using (SaveFileDialog saveFileDialog = new SaveFileDialog())
                 {
                     saveFileDialog.InitialDirectory = @"c:\";
@@ -275,7 +271,6 @@ namespace KeePassLicensesImporterExporter
                         licensesFilesDir = new FileInfo(saveFileDialog.FileName).DirectoryName;
                         licensesFilesFile = new FileInfo(saveFileDialog.FileName).FullName;
                         WriteToExcelFile.CreateExcelDocumentLicenses(appLicenses, licensesFilesFile);
-
                     }
                 }
             }
@@ -293,7 +288,6 @@ namespace KeePassLicensesImporterExporter
             PwEntry pe = m_host.MainWindow.GetSelectedEntry(true);
             if (pe.Strings.Get("Title").ReadString().Contains("LicenseId"))
             {
-
                 StringBuilder licenseData = new StringBuilder();
                 foreach (var item in pe.Strings)
                 {

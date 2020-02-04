@@ -6,11 +6,11 @@ using System.Runtime.InteropServices;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle("KeePassLicensesImporterExporter")]
-[assembly: AssemblyDescription("This is KeePass Plugin that allows import and export in excel fro software licenses with dinamic information for the licenses.")]
+[assembly: AssemblyDescription("This is KeePass Plugin that allows import and export in excel for software licenses with dynamic information for the licenses.")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Emil Kmetski")]
 [assembly: AssemblyProduct("KeePass Plugin")]
-[assembly: AssemblyCopyright("Copyright ©  2019 Emil Kmetski")]
+[assembly: AssemblyCopyright("Copyright ©  2020 Emil Kmetski")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 

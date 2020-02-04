@@ -115,13 +115,11 @@ namespace KeePassLicensesImporterExporter
                 using (SpreadsheetDocument document = SpreadsheetDocument.Create(excelFilename, SpreadsheetDocumentType.Workbook))
                 {
                     WriteExcelFile(ds, document);
-                }
-               // Trace.WriteLine("Successfully created: " + excelFilename);
+                }               
                 return true;
             }
             catch (Exception ex)
-            {
-               // Trace.WriteLine("Failed, exception thrown: " + ex.Message);
+            {               
                 return false;
             }
         }
@@ -269,7 +267,6 @@ namespace KeePassLicensesImporterExporter
 
             return myColumns;
         }
-
         
         private static void WriteDataTableToExcelWorksheet(DataTable dt, WorksheetPart worksheetPart)
         {
