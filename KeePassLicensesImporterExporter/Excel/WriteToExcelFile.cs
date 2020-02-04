@@ -1,6 +1,7 @@
 ﻿using DocumentFormat.OpenXml;
 using DocumentFormat.OpenXml.Packaging;
 using DocumentFormat.OpenXml.Spreadsheet;
+using KeePassLicensesImporterExporter.Models;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -20,10 +21,44 @@ namespace KeePassLicensesImporterExporter
         {
             DataSet ds = new DataSet();
             ds.Tables.Add(ListToDataTable(list));
-
             return CreateExcelDocument(ds, xlsxFilePath);
         }
-        
+        public static bool CreateExcelDocumentLicenses(List<AppLicense> list, string xlsxFilePath)
+        {
+            DataSet ds = new DataSet();
+            ds.Tables.Add(LicensesListToDataTable(list));
+            return CreateExcelDocument(ds, xlsxFilePath);
+        }
+        public static DataTable LicensesListToDataTable(List<AppLicense> list)
+        {
+            DataTable dt = new DataTable();
+            DataColumn dcLicenseId = new DataColumn("LicenseId", typeof(string));
+            DataColumn dcLicenseApplicationName = new DataColumn("LicenseApplicationName", typeof(string));
+            DataColumn dcLicenseApplicationVersion = new DataColumn("LicenseApplicationVersion", typeof(string));
+            DataColumn dcLicenseNumber = new DataColumn("LicenseNumber", typeof(string));
+            DataColumn dcLicenseRegistrationNumber = new DataColumn("LicenseRegistrationNumber", typeof(string));
+            dt.Columns.Add(dcLicenseId);
+            dt.Columns.Add(dcLicenseApplicationName);
+            dt.Columns.Add(dcLicenseApplicationVersion);
+            dt.Columns.Add(dcLicenseNumber);
+            dt.Columns.Add(dcLicenseRegistrationNumber);
+
+            foreach (AppLicense appLicense in list)
+            {
+                foreach (AppLicenseData licenseInfo in appLicense.LicenseDatas)
+                {
+                    DataRow row = dt.NewRow();
+                    row.SetField<string>("LicenseId", appLicense.Id);
+                    row.SetField<string>("LicenseApplicationName", licenseInfo.LicenseApplicationName);
+                    row.SetField<string>("LicenseApplicationVersion", licenseInfo.LicenseApplicationVersion);
+                    row.SetField<string>("LicenseNumber", licenseInfo.LicenseNumber);
+                    row.SetField<string>("LicenseRegistrationNumber", licenseInfo.LicenseRegistrationNumber);
+                    dt.Rows.Add(row);
+                }                
+            }
+            return dt;
+        }
+
         public static DataTable ListToDataTable<T>(List<T> list)
         {
             DataTable dt = new DataTable();

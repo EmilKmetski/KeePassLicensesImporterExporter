@@ -274,7 +274,7 @@ namespace KeePassLicensesImporterExporter
 
                         licensesFilesDir = new FileInfo(saveFileDialog.FileName).DirectoryName;
                         licensesFilesFile = new FileInfo(saveFileDialog.FileName).FullName;
-                        WriteToExcelFile.CreateExcelDocument(appLicenses, licensesFilesFile);
+                        WriteToExcelFile.CreateExcelDocumentLicenses(appLicenses, licensesFilesFile);
 
                     }
                 }
