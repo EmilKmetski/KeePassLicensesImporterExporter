@@ -59,8 +59,8 @@
     <Compile Include="KeePassLicensesImporterExporterExt.cs" />
     <Compile Include="Models\AppLicense.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="ReadExcelFile.cs" />
-    <Compile Include="WriteToExcelFile.cs" />
+    <Compile Include="Excel\ReadExcelFile.cs" />
+    <Compile Include="Excel\WriteToExcelFile.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

@@ -41,7 +41,7 @@ namespace KeePassLicensesImporterExporter
             hardwareLicensesMenu.AccessibleName = hardwareLicensesMenu.Name;
             hardwareLicensesMenu.Text = hardwareLicensesMenu.Name;
             hardwareLicensesMenu.Visible = true;
-                       
+
             ToolStripMenuItem importLicenses = new ToolStripMenuItem();
             importLicenses.Text = "Import Licenses";
             importLicenses.Click += this.OnMenuImportLicenses;
@@ -58,9 +58,9 @@ namespace KeePassLicensesImporterExporter
             hardwareLicensesMenu.DropDownItems.Add(viewLicense);
 
             ToolStripMenuItem viewSpecificLicense = new ToolStripMenuItem();
-            viewSpecificLicense.Text = "View License By App";               
+            viewSpecificLicense.Text = "View License By App";
             hardwareLicensesMenu.DropDownItems.Add(viewSpecificLicense);
-      
+
             viewSpecificLicense.DropDownOpening += delegate (object sender, EventArgs e)
             {
                 viewSpecificLicense.DropDownItems.Clear();
@@ -68,7 +68,7 @@ namespace KeePassLicensesImporterExporter
                 bool bOpen = ((pd != null) && pd.IsOpen);
                 PwEntry pe = m_host.MainWindow.GetSelectedEntry(true);
                 if (pe.Strings.Get("Title").ReadString().Contains("LicenseId"))
-                {                   
+                {
                     foreach (var item in pe.Strings)
                     {
                         if (item.Key.Contains("LicenseApplicationName"))
@@ -79,7 +79,7 @@ namespace KeePassLicensesImporterExporter
                             appMenu.Enabled = true;
                             appMenu.Visible = true;
 
-                            appMenu.Click += (senderd,ee) => { OnMenuViewLicensesByApp(sender, e, appName); };
+                            appMenu.Click += (senderd, ee) => { OnMenuViewLicensesByApp(sender, e, appName); };
                             viewSpecificLicense.DropDownItems.Add(appMenu);
                         }
                     }
@@ -98,7 +98,7 @@ namespace KeePassLicensesImporterExporter
             };
             return hardwareLicensesMenu;
         }
-        
+
         private void OnMenuImportLicenses(object sender, EventArgs e)
         {
             PwDatabase pd = m_host.Database;
@@ -185,9 +185,9 @@ namespace KeePassLicensesImporterExporter
             if ((pd == null) || !pd.IsOpen) { Debug.Assert(false); return; }
             string licensesFilesDir = string.Empty;
             string licensesFilesFile = string.Empty;
-
-            PwEntry pe = m_host.MainWindow.GetSelectedEntry(true);
-            if (pe.Strings.Get("Title").ReadString().Contains("LicenseId"))
+            
+            PwGroup pgParent = (m_host.MainWindow.GetSelectedGroup() ?? pd.RootGroup);
+            if (pgParent.Name == "Licenses")
             {
 
                 using (SaveFileDialog saveFileDialog = new SaveFileDialog())
@@ -199,22 +199,89 @@ namespace KeePassLicensesImporterExporter
                     saveFileDialog.Title = "Save the Excel file with License Data";
                     saveFileDialog.DefaultExt = "*.xlsx";
                     saveFileDialog.OverwritePrompt = true;
-                    saveFileDialog.FileName = "ExportedLisenses_" + DateTime.Now.ToString("yyyy_MM_dd_HH:mm") + ".xlsx";
+                    saveFileDialog.FileName = "ExportedLisenses_" + DateTime.Now.ToString("yyyy_MM_dd_HH_mm") + ".xlsx";
 
                     if (saveFileDialog.ShowDialog() == DialogResult.OK)
                     {
-                        //Get the path of specified file
+                        List<AppLicense> appLicenses = new List<AppLicense>();                        
+                        foreach (PwEntry pwEntry in pgParent.Entries)
+                        {
+                            if (pwEntry.Strings.Get("Title").ReadString().Contains("LicenseId"))
+                            {
+                                AppLicense appLicense = new AppLicense();
+                                List<AppLicenseData> appLicenseData = new List<AppLicenseData>();
+                                appLicense.Id = pwEntry.Strings.Get("Title").ReadString().Replace("LicenseId - ", "");
+                                AppLicenseData currentAppLicensData = new AppLicenseData();
+                                string currentApp = string.Empty;
+                                foreach (var item in pwEntry.Strings)
+                                {
+                                    if (String.IsNullOrEmpty(currentApp))
+                                    {
+                                        currentApp = item.Key.Split('|').ToList().FirstOrDefault();
+                                        currentAppLicensData = new AppLicenseData();
+                                    }
+                                    if (currentApp == item.Key.Split('|').ToList().FirstOrDefault())
+                                    {
+                                        switch (item.Key.Split('|').ToList().LastOrDefault())
+                                        {
+                                            case "LicenseApplicationName":                                                
+                                                currentAppLicensData.LicenseApplicationName = item.Value.ReadString();
+                                                break;
+                                            case "LicenseApplicationVersion":
+                                                currentAppLicensData.LicenseApplicationVersion = item.Value.ReadString();
+                                                break;
+                                            case "LicenseNumber":
+                                                currentAppLicensData.LicenseNumber = item.Value.ReadString();
+                                                break;
+                                            case "LicenseRegistrationNumber":
+                                                currentAppLicensData.LicenseRegistrationNumber = item.Value.ReadString();
+                                                break;
+                                        }
+                                    }
+                                    else if (currentApp != item.Key.Split('|').ToList().FirstOrDefault())
+                                    {
+                                        appLicenseData.Add(currentAppLicensData);
 
+                                        currentAppLicensData = new AppLicenseData();
+                                        currentApp = item.Key.Split('|').ToList().FirstOrDefault();
+                                        switch (item.Key.Split('|').ToList().LastOrDefault())
+                                        {
+                                            case "LicenseApplicationName":
+                                                currentAppLicensData.LicenseApplicationName = item.Value.ReadString();
+                                                break;
+                                            case "LicenseApplicationVersion":
+                                                currentAppLicensData.LicenseApplicationVersion = item.Value.ReadString();
+                                                break;
+                                            case "LicenseNumber":
+                                                currentAppLicensData.LicenseNumber = item.Value.ReadString();
+                                                break;
+                                            case "LicenseRegistrationNumber":
+                                                currentAppLicensData.LicenseRegistrationNumber = item.Value.ReadString();
+                                                break;
+                                        }
+                                    }
+                                }
+                                appLicenseData.Where(x => x.LicenseApplicationName == null).ToList().ForEach(
+                                    y =>
+                                    {
+                                        appLicenseData.Remove(y);
+                                    });
+
+                                appLicense.LicenseDatas = appLicenseData;
+                                appLicenses.Add(appLicense);
+                            }
+                        }
 
                         licensesFilesDir = new FileInfo(saveFileDialog.FileName).DirectoryName;
                         licensesFilesFile = new FileInfo(saveFileDialog.FileName).FullName;
+                        WriteToExcelFile.CreateExcelDocument(appLicenses, licensesFilesFile);
 
                     }
                 }
             }
             else
             {
-                MessageBox.Show("This entry does not contain license information!", "License information", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show("There is no Group with licenses!", "License information", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -248,14 +315,14 @@ namespace KeePassLicensesImporterExporter
 
             PwEntry pe = m_host.MainWindow.GetSelectedEntry(true);
             if (pe.Strings.Get("Title").ReadString().Contains("LicenseId"))
-            {                
+            {
                 StringBuilder licenseData = new StringBuilder();
                 foreach (var item in pe.Strings)
                 {
                     switch (item.Key.Split('|').ToList().LastOrDefault())
                     {
                         case "Title":
-                            licenseData.AppendLine(item.Key.Split('|').ToList().LastOrDefault() + " : " + item.Value.ReadString());
+                            licenseData.AppendLine(item.Value.ReadString());
                             break;
                         case "LicenseApplicationName":
                             licenseData.AppendLine(item.Key.Split('|').ToList().LastOrDefault() + " : " + item.Value.ReadString());
@@ -271,7 +338,7 @@ namespace KeePassLicensesImporterExporter
                             break;
                         default:
                             break;
-                    }                    
+                    }
                 }
                 Clipboard.SetDataObject(licenseData.ToString(), true);
                 MessageBox.Show(licenseData.ToString(), "License information", MessageBoxButtons.OK, MessageBoxIcon.Information);

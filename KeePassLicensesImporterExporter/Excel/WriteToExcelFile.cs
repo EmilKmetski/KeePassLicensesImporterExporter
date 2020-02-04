@@ -30,8 +30,9 @@ namespace KeePassLicensesImporterExporter
 
             foreach (PropertyInfo info in typeof(T).GetProperties())
             {
-                dt.Columns.Add(new DataColumn(info.Name, GetNullableType(info.PropertyType)));
+               dt.Columns.Add(new DataColumn(info.Name, GetNullableType(info.PropertyType)));               
             }
+
             foreach (T t in list)
             {
                 DataRow row = dt.NewRow();
