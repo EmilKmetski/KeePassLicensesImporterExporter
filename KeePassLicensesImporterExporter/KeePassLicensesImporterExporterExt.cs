@@ -41,9 +41,7 @@ namespace KeePassLicensesImporterExporter
             hardwareLicensesMenu.AccessibleName = hardwareLicensesMenu.Name;
             hardwareLicensesMenu.Text = hardwareLicensesMenu.Name;
             hardwareLicensesMenu.Visible = true;
-
-
-
+                       
             ToolStripMenuItem importLicenses = new ToolStripMenuItem();
             importLicenses.Text = "Import Licenses";
             importLicenses.Click += this.OnMenuImportLicenses;
@@ -59,6 +57,35 @@ namespace KeePassLicensesImporterExporter
             viewLicense.Click += this.OnMenuViewLicenses;
             hardwareLicensesMenu.DropDownItems.Add(viewLicense);
 
+            ToolStripMenuItem viewSpecificLicense = new ToolStripMenuItem();
+            viewSpecificLicense.Text = "View License By App";               
+            hardwareLicensesMenu.DropDownItems.Add(viewSpecificLicense);
+      
+            viewSpecificLicense.DropDownOpening += delegate (object sender, EventArgs e)
+            {
+                viewSpecificLicense.DropDownItems.Clear();
+                PwDatabase pd = m_host.Database;
+                bool bOpen = ((pd != null) && pd.IsOpen);
+                PwEntry pe = m_host.MainWindow.GetSelectedEntry(true);
+                if (pe.Strings.Get("Title").ReadString().Contains("LicenseId"))
+                {                   
+                    foreach (var item in pe.Strings)
+                    {
+                        if (item.Key.Contains("LicenseApplicationName"))
+                        {
+                            ToolStripMenuItem appMenu = new ToolStripMenuItem();
+                            string appName = item.Key.Split('|').ToList().FirstOrDefault();
+                            appMenu.Text = appName;
+                            appMenu.Enabled = true;
+                            appMenu.Visible = true;
+
+                            appMenu.Click += (senderd,ee) => { OnMenuViewLicensesByApp(sender, e, appName); };
+                            viewSpecificLicense.DropDownItems.Add(appMenu);
+                        }
+                    }
+                }
+            };
+
             hardwareLicensesMenu.DropDownOpening += delegate (object sender, EventArgs e)
             {
                 PwDatabase pd = m_host.Database;
@@ -67,10 +94,11 @@ namespace KeePassLicensesImporterExporter
                 importLicenses.Enabled = bOpen;
                 exportLicenses.Enabled = bOpen;
                 viewLicense.Enabled = bOpen;
+                viewSpecificLicense.Enabled = bOpen;
             };
-
             return hardwareLicensesMenu;
         }
+        
         private void OnMenuImportLicenses(object sender, EventArgs e)
         {
             PwDatabase pd = m_host.Database;
@@ -190,6 +218,29 @@ namespace KeePassLicensesImporterExporter
             }
         }
 
+        private void OnMenuViewLicensesByApp(object sender, EventArgs e, string applicationName)
+        {
+            PwDatabase pd = m_host.Database;
+            if ((pd == null) || !pd.IsOpen) { Debug.Assert(false); return; }
+            string currentAppName = "";
+            PwEntry pe = m_host.MainWindow.GetSelectedEntry(true);
+            if (pe.Strings.Get("Title").ReadString().Contains("LicenseId"))
+            {
+
+                StringBuilder licenseData = new StringBuilder();
+                foreach (var item in pe.Strings)
+                {
+                    if (item.Key.Contains(applicationName) && item.Key.Contains("LicenseRegistrationNumber"))
+                    {
+                        licenseData.AppendLine(item.Value.ReadString());
+                        currentAppName = item.Key.Split('|').ToList().FirstOrDefault();
+                        break;
+                    }
+                }
+                Clipboard.SetDataObject(licenseData.ToString(), true);
+                MessageBox.Show("License Information is copied in clipboard: \n" + licenseData.ToString(), "License information " + currentAppName, MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+        }
         private void OnMenuViewLicenses(object sender, EventArgs e)
         {
             PwDatabase pd = m_host.Database;
@@ -197,33 +248,31 @@ namespace KeePassLicensesImporterExporter
 
             PwEntry pe = m_host.MainWindow.GetSelectedEntry(true);
             if (pe.Strings.Get("Title").ReadString().Contains("LicenseId"))
-            {
+            {                
                 StringBuilder licenseData = new StringBuilder();
                 foreach (var item in pe.Strings)
                 {
-                    switch (item.Key)
+                    switch (item.Key.Split('|').ToList().LastOrDefault())
                     {
                         case "Title":
-                            licenseData.AppendLine(item.Key + " : " + item.Value.ReadString());
+                            licenseData.AppendLine(item.Key.Split('|').ToList().LastOrDefault() + " : " + item.Value.ReadString());
                             break;
                         case "LicenseApplicationName":
-                            licenseData.AppendLine(item.Key + " : " + item.Value.ReadString());
+                            licenseData.AppendLine(item.Key.Split('|').ToList().LastOrDefault() + " : " + item.Value.ReadString());
                             break;
                         case "LicenseApplicationVersion":
-                            licenseData.AppendLine(item.Key + " : " + item.Value.ReadString());
+                            licenseData.AppendLine(item.Key.Split('|').ToList().LastOrDefault() + " : " + item.Value.ReadString());
                             break;
                         case "LicenseNumber":
-                            licenseData.AppendLine(item.Key + " : " + item.Value.ReadString());
+                            licenseData.AppendLine(item.Key.Split('|').ToList().LastOrDefault() + " : " + item.Value.ReadString());
                             break;
                         case "LicenseRegistrationNumber":
-                            licenseData.AppendLine(item.Key + " : " + item.Value.ReadString());
+                            licenseData.AppendLine(item.Key.Split('|').ToList().LastOrDefault() + " : " + item.Value.ReadString());
                             break;
                         default:
                             break;
-                    }
-                    licenseData.AppendLine(item.Key + " : " + item.Value.ReadString());
+                    }                    
                 }
-
                 Clipboard.SetDataObject(licenseData.ToString(), true);
                 MessageBox.Show(licenseData.ToString(), "License information", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
