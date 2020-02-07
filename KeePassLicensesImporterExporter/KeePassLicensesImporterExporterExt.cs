@@ -176,6 +176,7 @@ namespace KeePassLicensesImporterExporter
 
             m_host.MainWindow.UpdateUI(false, null, true, pg, true, null, true);
         }
+
         private void OnMenuExportLicenses(object sender, EventArgs e)
         {
             PwDatabase pd = m_host.Database;
